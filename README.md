@@ -10,8 +10,8 @@ Agent de veille automatisée pour les agents de la **fonction publique territori
 
 Ce projet permet de surveiller automatiquement un ensemble de sources officielles et professionnelles, puis de restituer les informations collectées de deux façons complémentaires :
 
-1. **Via Claude** — en interrogeant directement les données structurées du dossier `/data` dans une conversation.
-2. **Via une page HTML autonome** (`/site`) — consultable par n'importe quel agent de la collectivité, sans avoir besoin d'une licence Claude ni d'un compte particulier.
+1. En interrogeant directement les données structurées du dossier `/data` dans une conversation.
+2. **Via une page HTML autonome** (`/site`) — consultable par n'importe quel agent de la collectivité, sans avoir besoin d'une licence ni d'un compte particulier.
 
 L'idée est de centraliser une veille utile aux agents territoriaux (services juridiques, marchés publics, assurances) tout en rendant l'information accessible à tous, y compris aux personnes qui n'utilisent pas d'outils IA au quotidien.
 
@@ -38,8 +38,7 @@ Contient la configuration déclarative des sites à surveiller (URL, domaine —
 Contient la base de veille : les éléments collectés, structurés (par exemple en JSON), avec leurs métadonnées (date, source, domaine, résumé, lien).
 
 ### `/site`
-Contient la page HTML générée à partir des données de `/data`, destinée aux agents qui n'ont pas accès à Claude.
-
+Contient la page HTML générée à partir des données de `/data`
 ### `/scripts`
 Contient les scripts qui collectent les sources déclarées dans `/sources`, alimentent `/data`, puis génèrent la page dans `/site`.
 
