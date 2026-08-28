@@ -73,3 +73,30 @@ Sources indisponibles : lagazettedescommunes.com, lemoniteur.fr
 
 ### Diffusion (Artifact) — 2026-08-28
 Échec : l'outil Artifact n'est pas disponible dans cet environnement d'exécution. site/index.html a été régénéré localement mais n'a pas pu être republié sur l'URL de l'artefact existant.
+
+## Run de veille — 2026-08-29
+
+Périmètre de la recherche : publications de moins de 7 jours (depuis le 2026-08-22), thématiques juridique / marches_publics / assurances, pertinence secteur public territorial. Base de départ (/data/veille.json) : 1 item déjà présent (legifrance-001), déduplication effectuée sur les URL.
+
+### Résultat par source (sources/sources.json)
+
+- legifrance.gouv.fr : OK. Recherche sur les JORF récents (n° 0200 du 28/08 et alentours) et jurisprudence Conseil d'État : rien de nouveau concernant collectivités/marchés publics/assurances dans la fenêtre. Aucun nouvel item.
+- service-public.fr : OK, accès direct (entreprendre.service-public.gouv.fr/actualites, article A19042 sur les critères environnementaux). Contenu déjà couvert par l'item existant (décret n° 2022-767) — pas de sujet distinct. Aucun nouvel item.
+- BOAMP (dila.gouv.fr/boamp) : OK, confirmation : plateforme d'annonces individuelles et de données ouvertes, pas de contenu éditorialisé. Aucun item.
+- PLACE (marches-publics.gouv.fr) : OK, confirmation : plateforme transactionnelle sans rubrique actualité éditorialisée. Aucun item.
+- La Lettre FPT (collectivites-locales.gouv.fr) : OK, accès direct. Dernière lettre d'information toujours le n° 283 du 3 août 2026 — hors fenêtre. Aucun item retenu.
+- CNFPT (cnfpt.fr) : hors périmètre pour ce run (seule thématique couverte par cette source est rh_fpt, non demandée).
+- La Gazette des Communes (lagazettedescommunes.com) : SOURCE INDISPONIBLE POUR VÉRIFICATION. Nouvelle tentative d'accès direct (WebFetch) sur /themes/marches-publics/ et /themes/assurance/ : échec HTTP 403 (protection anti-bot), persistant depuis les runs précédents.
+- Le Moniteur (lemoniteur.fr) : SOURCE INDISPONIBLE POUR VÉRIFICATION. Nouvelle tentative d'accès direct sur un article candidat (PLF 2026, garantie émeutes) : échec HTTP 403, persistant.
+- La Lettre du Cadre (lettreducadre.fr) : OK, accès direct possible. Aucun article récent sur juridique/marchés publics/assurances dans la fenêtre des 7 jours (contenu du site actuellement centré sur RH/statut).
+- EUR-Lex (eur-lex.europa.eu) : OK, aucune publication récente détectée dans la fenêtre de 7 jours (révision des directives marchés publics encore en phase de consultation, pas de texte publié).
+- TED (ted.europa.eu) : OK, confirmation : avis de marchés individuels, pas de contenu éditorialisé. Nouveaux seuils européens 2026-2027 identifiés mais entrés en vigueur au 1er janvier 2026 — hors fenêtre.
+
+Pistes vérifiées et écartées faute d'actualité dans la fenêtre des 7 jours : guide OECP sur les marchés publics d'assurance (publié le 09/07/2025), article FNTP sur les nouvelles exigences environnementales/sociales des marchés de travaux (publié le 29/07/2026, contenu au demeurant déjà couvert par l'item existant), débat PLF 2026 sur la garantie assurance émeutes pour les collectivités (sujet budgétaire antérieur, pas d'étape nouvelle identifiée cette semaine).
+
+### Bilan
+0 item ajouté à /data/veille.json. 2 sources toujours indisponibles pour vérification (lagazettedescommunes.com, lemoniteur.fr, blocage HTTP 403 persistant) — à recontrôler lors du prochain run.
+
+## Run automatique — 2026-08-29
+Nouveaux items : 0 (juridique: 0, marches_publics: 0, assurances: 0)
+Sources indisponibles : lagazettedescommunes.com, lemoniteur.fr
