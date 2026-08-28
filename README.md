@@ -17,13 +17,16 @@ L'idée est de centraliser une veille utile aux agents territoriaux (services ju
 
 Pour les agents qui consultent la page de veille, voir le [guide d'utilisation](GUIDE_UTILISATION.md) : comment la consulter, comprendre les catégories et niveaux de fiabilité, et signaler une erreur ou proposer une source.
 
+**Page en ligne (GitHub Pages) :** https://mabetuin.github.io/Actualite-juridique/
+
 ## Structure du projet
 
 ```
 veille-fpt/
 ├── sources/    # Configuration des sites et flux à surveiller
 ├── data/       # Base de veille au format structuré (résultats collectés)
-├── site/       # Page HTML générée, consultable sans licence Claude
+├── site/       # Page HTML générée, version de référence locale
+├── docs/       # Copie de site/index.html publiée sur GitHub Pages
 ├── scripts/    # Scripts de collecte des sources et de génération du site
 └── README.md
 ```
