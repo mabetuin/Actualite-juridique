@@ -1,4 +1,4 @@
-# Guide d'utilisation — CD39 - Actualité juridique
+# Guide d'utilisation — Actualité juridique
 
 Ce guide s'adresse à tous les agents de la collectivité. Il explique comment consulter la page de veille juridique, marchés publics et assurances, comment comprendre ce qui y est affiché, et comment signaler un problème.
 

@@ -186,7 +186,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CD39 - Actualité juridique</title>
+<title>Actualité juridique</title>
 <meta name="description" content="Veille juridique, marchés publics et assurances pour les agents de la fonction publique territoriale.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -567,7 +567,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   <header role="banner">
     <div class="conteneur">
-      <h1>CD39 - Actualité juridique</h1>
+      <h1>Actualité juridique</h1>
       <p class="souscription">Juridique &middot; marchés publics &middot; assurances, pour les agents de la fonction publique territoriale</p>
       <p class="maj">Dernière mise à jour <time datetime="{maj_iso}">{maj_fr}</time></p>
     </div>
