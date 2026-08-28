@@ -1,0 +1,75 @@
+## Run de veille — 2026-08-28
+
+Périmètre de la recherche : publications de moins de 7 jours (depuis le 2026-08-21), thématiques juridique / marches_publics / assurances, pertinence secteur public territorial. Base de départ (/data/veille.json) vide, aucune déduplication nécessaire pour ce run.
+
+### Résultat par source (sources/sources.json)
+
+- legifrance.gouv.fr : OK. Recherche de textes JORF récents (semaine du 21 au 28 août 2026) sur collectivités/marchés publics/assurances. 1 item retenu et vérifié directement sur legifrance.gouv.fr (voir /data/veille.json, id 2026-08-28-legifrance-001). Autres décrets trouvés du 14 et 15 août 2026 (Conseil national de la commande publique, seuil pompes à chaleur) écartés : hors fenêtre des 7 jours.
+- service-public.fr : OK, aucune publication pertinente détectée dans la fenêtre de 7 jours pour les thématiques juridique/marches_publics/assurances.
+- BOAMP (dila.gouv.fr/boamp) : OK, mais nature du site = annonces individuelles de marchés (avis de marché/attribution), pas de contenu de type "veille juridique" éditorialisé. Aucun item retenu.
+- PLACE (marches-publics.gouv.fr) : OK, même constat que BOAMP (consultations individuelles, pas d'actualité réglementaire éditorialisée détectée dans la fenêtre). Aucun item retenu.
+- La Lettre FPT (collectivites-locales.gouv.fr) : OK. Piste identifiée ("rapports triennaux au parlement sur le contrôle de légalité et le contrôle budgétaire", page modifiée le 24/08/2026) vérifiée par consultation directe de la page : le rapport le plus récent qui y est publié date en réalité du 17/07/2024 (25e rapport, années 2019-2021) — pas de contenu réellement nouveau. Item écarté après vérification.
+- CNFPT (cnfpt.fr) : OK, contenus trouvés = programmes de formation et tendances RH, hors thématiques juridique/marches_publics/assurances ou hors fenêtre de 7 jours. Aucun item retenu.
+- La Gazette des Communes (lagazettedescommunes.com) : SOURCE INDISPONIBLE POUR VÉRIFICATION. Deux articles candidats repérés par recherche web ("Assurance des collectivités : de nouvelles turbulences à l'horizon ?" et "Simplification des normes : le point sur le nouveau seuil en maîtrise d'œuvre") mais l'accès direct à ces pages ainsi qu'à la page thématique /themes/marches-publics/ a échoué à trois reprises avec une erreur HTTP 403 (protection anti-bot du site). Conformément à la consigne, ces contenus n'ont pas été résumés faute de vérification directe du lien source.
+- Le Moniteur (lemoniteur.fr) : SOURCE INDISPONIBLE POUR VÉRIFICATION. Article candidat repéré par recherche web ("Le Conseil d'État confirme la validité de la pratique des trois devis pour la passation des marchés publics de faible montant") mais l'accès direct à la page a échoué avec une erreur HTTP 403. Contenu écarté faute de vérification.
+- La Lettre du Cadre (lettreducadre.fr) : OK, accès direct possible. Article candidat vérifié ("Ce qui change dans le statut des administrateurs territoriaux et emplois de direction") mais daté du 06/07/2026 : hors fenêtre des 7 jours. Aucun item retenu.
+- EUR-Lex (eur-lex.europa.eu) : OK, aucune publication récente détectée dans la fenêtre de 7 jours (directives identifiées datent de 2004 et 2014).
+- TED (ted.europa.eu) : OK, mais nature du site = avis de marchés individuels, pas de contenu de type "veille juridique" éditorialisé. Aucun item retenu.
+
+### Bilan
+1 item ajouté à /data/veille.json. 2 sources signalées indisponibles pour vérification (lagazettedescommunes.com, lemoniteur.fr) — à recontrôler lors du prochain run.
+
+## Run de veille — 2026-08-28 (second passage du jour)
+
+Périmètre de la recherche : publications de moins de 7 jours (depuis le 2026-08-21), thématiques juridique / marches_publics / assurances, pertinence secteur public territorial. Base de départ (/data/veille.json) : 1 item déjà présent (legifrance-001), déduplication effectuée sur les URL.
+
+### Résultat par source (sources/sources.json)
+
+- legifrance.gouv.fr : OK. Passage en revue des JORF n° 0192 à 0200 (18 au 28 août 2026) à la recherche de textes concernant collectivités/marchés publics/assurances. Textes trouvés hors périmètre thématique ou d'impact trop mineur pour une collectivité (accessibilité handicap, code des étrangers, classement parc naturel, comptes de syndicats, décharges de service des directeurs d'école, prime de transition énergétique, permis minier, fichier des incidents de remboursement crédits particuliers, transferts de portefeuille d'assurance individuels). Aucun nouvel item retenu ; l'item déjà présent (décret n° 2022-767, critère environnemental) reste le seul pertinent de la fenêtre.
+- service-public.fr : OK, aucune publication pertinente supplémentaire détectée.
+- BOAMP (dila.gouv.fr/boamp) : OK, confirmation : avis de marché individuels, pas de contenu éditorialisé. Aucun item.
+- PLACE (marches-publics.gouv.fr) : OK, confirmation : plateforme transactionnelle sans rubrique actualité éditorialisée. Aucun item.
+- La Lettre FPT (collectivites-locales.gouv.fr) : OK. Vérification directe : la dernière lettre d'information est le n° 283, publiée le 3 août 2026 — hors fenêtre des 7 jours. Pages "Roquelaure de la simplification" (9 mai 2025) et "Exercice des missions de conseil juridique et de contrôle de légalité" (30 décembre 2025) vérifiées mais également hors fenêtre. Aucun item retenu.
+- CNFPT (cnfpt.fr) : hors périmètre pour ce run (seule thématique couverte par cette source est rh_fpt, non demandée).
+- La Gazette des Communes (lagazettedescommunes.com) : SOURCE INDISPONIBLE POUR VÉRIFICATION. Nouvelle tentative d'accès direct (WebFetch) sur /themes/marches-publics/ et /themes/assurance/ : échec HTTP 403 (protection anti-bot), comme lors du run précédent. Article candidat sur l'assurance des collectivités identifié par recherche mais daté du 19 mars 2026 (hors fenêtre) une fois la date réelle vérifiée via une source tierce.
+- Le Moniteur (lemoniteur.fr) : SOURCE INDISPONIBLE POUR VÉRIFICATION. Nouvelle tentative d'accès direct sur /achat-public/ : échec HTTP 403, comme lors du run précédent.
+- La Lettre du Cadre (lettreducadre.fr) : OK, accès direct possible. Article le plus récent daté du 16/07/2026 (réforme de l'intercommunalité) : hors fenêtre des 7 jours. Aucun item retenu.
+- EUR-Lex (eur-lex.europa.eu) : OK, aucune publication récente détectée dans la fenêtre de 7 jours.
+- TED (ted.europa.eu) : OK, confirmation : avis de marchés individuels, pas de contenu éditorialisé. Aucun item.
+
+Piste vérifiée et écartée : proposition de loi sénatoriale sur la résiliation des marchés publics d'assurance des collectivités (Sébastien Pla, n° 555) — dépôt du 28/04/2025, aucune étape (commission, vote) intervenue dans la fenêtre des 7 jours d'après le dossier législatif Sénat consulté directement.
+
+### Bilan
+0 item ajouté à /data/veille.json lors de ce second passage (aucune publication nouvelle et vérifiable détectée dans la fenêtre). 2 sources toujours indisponibles pour vérification (lagazettedescommunes.com, lemoniteur.fr, blocage HTTP 403 persistant) — à recontrôler lors du prochain run.
+
+## Run automatique — 2026-08-28
+Nouveaux items : 0 (juridique: 0, marches_publics: 0, assurances: 0)
+Sources indisponibles : lagazettedescommunes.com, lemoniteur.fr
+
+## Run de veille — 2026-08-28 (troisième passage du jour)
+
+Périmètre de la recherche : publications de moins de 7 jours (depuis le 2026-08-21), thématiques juridique / marches_publics / assurances, pertinence secteur public territorial. Base de départ (/data/veille.json) : 1 item déjà présent (legifrance-001), déduplication effectuée sur les URL.
+
+### Résultat par source (sources/sources.json)
+
+- legifrance.gouv.fr : OK. Vérification directe du sommaire du JORF n° 0200 du 28 août 2026 (dernier JO paru) : aucun texte pertinent pour les thématiques juridique/marches_publics/assurances. Aucun nouvel item.
+- service-public.fr : OK, aucune publication pertinente supplémentaire détectée.
+- BOAMP (dila.gouv.fr/boamp) : OK, confirmation : avis de marché individuels, pas de contenu éditorialisé. Aucun item.
+- PLACE (marches-publics.gouv.fr) : OK, confirmation : plateforme transactionnelle sans rubrique actualité éditorialisée. Aucun item.
+- La Lettre FPT (collectivites-locales.gouv.fr) : OK, aucune publication nouvelle dans la fenêtre des 7 jours par rapport au passage précédent.
+- CNFPT (cnfpt.fr) : hors périmètre pour ce run (seule thématique couverte par cette source est rh_fpt, non demandée).
+- La Gazette des Communes (lagazettedescommunes.com) : SOURCE INDISPONIBLE POUR VÉRIFICATION. Nouvelle tentative d'accès direct (WebFetch) sur /themes/marches-publics/ : échec HTTP 403 (protection anti-bot), persistant depuis les deux runs précédents.
+- Le Moniteur (lemoniteur.fr) : SOURCE INDISPONIBLE POUR VÉRIFICATION. Nouvelle tentative d'accès direct sur /politique-et-institutions/commande-publique/achat-public/ : échec HTTP 403, persistant.
+- La Lettre du Cadre (lettreducadre.fr) : OK, aucune publication nouvelle dans la fenêtre des 7 jours détectée par recherche.
+- EUR-Lex (eur-lex.europa.eu) : OK, aucune publication récente détectée dans la fenêtre de 7 jours.
+- TED (ted.europa.eu) : OK, confirmation : avis de marchés individuels, pas de contenu éditorialisé. Aucun item.
+
+### Bilan
+0 item ajouté à /data/veille.json lors de ce troisième passage. 2 sources toujours indisponibles pour vérification (lagazettedescommunes.com, lemoniteur.fr, blocage HTTP 403 persistant) — à recontrôler lors du prochain run.
+
+## Run automatique — 2026-08-28
+Nouveaux items : 0 (juridique: 0, marches_publics: 0, assurances: 0)
+Sources indisponibles : lagazettedescommunes.com, lemoniteur.fr
+
+### Diffusion (Artifact) — 2026-08-28
+Échec : l'outil Artifact n'est pas disponible dans cet environnement d'exécution. site/index.html a été régénéré localement mais n'a pas pu être republié sur l'URL de l'artefact existant.

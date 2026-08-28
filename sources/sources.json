@@ -1,0 +1,70 @@
+{
+  "sources": [
+    {
+      "nom": "Légifrance",
+      "url": "https://www.legifrance.gouv.fr",
+      "nature": "officiel",
+      "thematiques": ["juridique"]
+    },
+    {
+      "nom": "service-public.fr",
+      "url": "https://www.service-public.fr",
+      "nature": "officiel",
+      "thematiques": ["juridique", "rh_fpt"]
+    },
+    {
+      "nom": "BOAMP",
+      "url": "https://www.dila.gouv.fr/boamp",
+      "nature": "officiel",
+      "thematiques": ["marches_publics"]
+    },
+    {
+      "nom": "PLACE",
+      "url": "https://www.marches-publics.gouv.fr",
+      "nature": "officiel",
+      "thematiques": ["marches_publics"]
+    },
+    {
+      "nom": "La Lettre FPT",
+      "url": "https://www.collectivites-locales.gouv.fr",
+      "nature": "officiel",
+      "thematiques": ["juridique", "rh_fpt"]
+    },
+    {
+      "nom": "CNFPT",
+      "url": "https://www.cnfpt.fr",
+      "nature": "officiel",
+      "thematiques": ["rh_fpt"]
+    },
+    {
+      "nom": "La Gazette des Communes",
+      "url": "https://www.lagazettedescommunes.com",
+      "nature": "presse_specialisee",
+      "thematiques": ["juridique", "marches_publics", "rh_fpt", "assurances"]
+    },
+    {
+      "nom": "Le Moniteur",
+      "url": "https://www.lemoniteur.fr",
+      "nature": "presse_specialisee",
+      "thematiques": ["marches_publics", "juridique"]
+    },
+    {
+      "nom": "La Lettre du Cadre",
+      "url": "https://www.lettreducadre.fr",
+      "nature": "presse_specialisee",
+      "thematiques": ["rh_fpt", "juridique"]
+    },
+    {
+      "nom": "EUR-Lex",
+      "url": "https://eur-lex.europa.eu",
+      "nature": "officiel",
+      "thematiques": ["europe", "juridique"]
+    },
+    {
+      "nom": "TED",
+      "url": "https://ted.europa.eu",
+      "nature": "officiel",
+      "thematiques": ["europe", "marches_publics"]
+    }
+  ]
+}

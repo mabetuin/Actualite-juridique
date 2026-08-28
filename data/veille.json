@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "id": "2026-08-28-legifrance-001",
+      "titre": "Entrée en vigueur de l'obligation d'un critère environnemental dans tous les marchés publics et concessions",
+      "categorie": "marches_publics",
+      "resume": "Depuis le 21 août 2026, les articles 2, 3, 5, 7 et 9 du décret n° 2022-767 du 2 mai 2022 (pris pour l'application de l'article 35 de la loi Climat et résilience du 22 août 2021) sont entrés en vigueur. Tout acheteur public, y compris les collectivités territoriales, doit désormais retenir au moins un critère d'attribution prenant en compte les caractéristiques environnementales de l'offre : cette prise en compte, jusque-là facultative, devient obligatoire. La règle s'applique à tous les marchés et concessions pour lesquels une consultation est engagée ou un avis d'appel à la concurrence est envoyé à la publication à compter de cette date ; les procédures déjà engagées ne sont pas concernées. Les collectivités doivent donc adapter sans délai leurs règlements de consultation et leurs grilles de notation pour intégrer ce critère environnemental sous peine d'irrégularité de la procédure.",
+      "date_publication": "2026-08-21",
+      "date_detection": "2026-08-28",
+      "sources": [
+        "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000045733739",
+        "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000037701019/2026-08-21"
+      ],
+      "niveau_fiabilite": "officiel",
+      "niveau_impact": "fort"
+    }
+  ]
+}

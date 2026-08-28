@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.veillefpt.daily</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/m/Agent_FPT/veille-fpt/scripts/run_daily_veille.sh</string>
+    </array>
+
+    <!-- Jours ouvrés (lundi=1 ... vendredi=5) à 7h00, heure locale du Mac -->
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>2</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>4</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>5</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+    </array>
+
+    <!-- launchd démarre avec un PATH minimal : on l'élargit pour trouver la CLI claude -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/m/.local/bin:/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/m/.npm-global/bin</string>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/m/Agent_FPT/veille-fpt/scripts/logs/launchd-stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/m/Agent_FPT/veille-fpt/scripts/logs/launchd-stderr.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch",
+      "Read",
+      "Edit(./data/veille.json)",
+      "Edit(./data/journal.log)",
+      "Bash(python3 scripts/generate_site.py)",
+      "mcp__claude_ai_Gmail__send_message"
+    ]
+  }
+}

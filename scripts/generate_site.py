@@ -1,0 +1,677 @@
+#!/usr/bin/env python3
+"""Génère /site/index.html à partir de /data/veille.json.
+
+Usage : python3 scripts/generate_site.py
+Aucune dépendance externe (bibliothèque standard uniquement).
+"""
+
+import html
+import json
+from datetime import datetime
+from pathlib import Path
+from urllib.parse import urlparse
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA_FILE = ROOT / "data" / "veille.json"
+OUTPUT_FILE = ROOT / "site" / "index.html"
+
+MOIS_FR = {
+    1: "janvier", 2: "février", 3: "mars", 4: "avril", 5: "mai", 6: "juin",
+    7: "juillet", 8: "août", 9: "septembre", 10: "octobre", 11: "novembre", 12: "décembre",
+}
+
+CATEGORIES = {
+    "juridique": {"label": "Juridique", "classe": "cat-juridique"},
+    "marches_publics": {"label": "Marchés publics", "classe": "cat-marches"},
+    "assurances": {"label": "Assurances", "classe": "cat-assurances"},
+    "rh_fpt": {"label": "RH / fonction publique territoriale", "classe": "cat-rh"},
+    "europe": {"label": "Europe", "classe": "cat-europe"},
+}
+
+FIABILITE = {
+    "officiel": {"label": "Officiel", "symbole": "●"},
+    "presse_specialisee": {"label": "Presse spécialisée", "symbole": "○"},
+}
+
+IMPACT = {
+    "faible": {"label": "Impact faible", "classe": "impact-faible"},
+    "moyen": {"label": "Impact moyen", "classe": "impact-moyen"},
+    "fort": {"label": "Impact fort", "classe": "impact-fort"},
+}
+
+
+def date_fr(date_str):
+    """Convertit une date AAAA-MM-JJ en '28 août 2026'. Renvoie la valeur brute si le format est inattendu."""
+    try:
+        d = datetime.strptime(date_str, "%Y-%m-%d")
+        return "{0} {1} {2}".format(d.day, MOIS_FR[d.month], d.year)
+    except (ValueError, KeyError):
+        return date_str
+
+
+def charger_items():
+    if not DATA_FILE.exists():
+        return []
+    with DATA_FILE.open(encoding="utf-8") as f:
+        contenu = json.load(f)
+    items = contenu.get("items", [])
+    # Tri par date de détection décroissante (les items sans date vont en fin de liste)
+    items.sort(key=lambda item: item.get("date_detection", ""), reverse=True)
+    return items
+
+
+def rendre_kicker(categorie_key, niveau_fiabilite):
+    cat_info = CATEGORIES.get(categorie_key, {"label": categorie_key or "Non classé", "classe": "cat-defaut"})
+    fiab_info = FIABILITE.get(niveau_fiabilite, {"label": niveau_fiabilite or "Fiabilité non précisée", "symbole": "○"})
+    return (
+        '<p class="kicker">'
+        '<span class="kicker-cat {classe}">{cat_label}</span>'
+        '<span class="kicker-sep" aria-hidden="true">·</span>'
+        '<span class="kicker-fiab">'
+        '<span aria-hidden="true">{symbole}</span> {fiab_label}'
+        '</span>'
+        '</p>'
+    ).format(
+        classe=cat_info["classe"],
+        cat_label=html.escape(cat_info["label"]),
+        symbole=fiab_info["symbole"],
+        fiab_label=html.escape(fiab_info["label"]),
+    )
+
+
+def rendre_sources(urls):
+    liens = []
+    for url in urls:
+        url_echappee = html.escape(url, quote=True)
+        try:
+            domaine = urlparse(url).netloc or url
+        except ValueError:
+            domaine = url
+        liens.append(
+            '<li>'
+            '<a href="{url}" target="_blank" rel="noopener noreferrer">'
+            '{domaine}'
+            '<span class="lien-icone" aria-hidden="true" focusable="false">&#8599;</span>'
+            '<span class="sr-only"> (ouvre dans un nouvel onglet)</span>'
+            '</a>'
+            '</li>'.format(url=url_echappee, domaine=html.escape(domaine))
+        )
+    return "\n".join(liens)
+
+
+def rendre_carte(item):
+    titre = html.escape(item.get("titre", "Sans titre"))
+    categorie_key = item.get("categorie", "")
+    niveau_fiabilite = item.get("niveau_fiabilite", "")
+    resume = html.escape(item.get("resume", ""))
+    date_pub = html.escape(date_fr(item.get("date_publication", "")))
+    date_det = html.escape(date_fr(item.get("date_detection", "")))
+    date_det_iso = html.escape(item.get("date_detection", ""))
+    sources_html = rendre_sources(item.get("sources", []))
+    niveau_impact = item.get("niveau_impact")
+    impact_html = ""
+    if niveau_impact:
+        info = IMPACT.get(niveau_impact, {"label": "Impact " + niveau_impact, "classe": "impact-faible"})
+        impact_html = '<p class="meta impact {classe}">{label}</p>'.format(
+            classe=info["classe"], label=html.escape(info["label"])
+        )
+
+    return """
+      <li class="entree" data-categorie="{categorie_key}">
+        <article>
+          {kicker}
+          <h3>{titre}</h3>
+          <p class="resume">{resume}</p>
+          <p class="meta">Publié le {date_pub} &middot; détecté le
+            <time datetime="{date_det_iso}">{date_det}</time>
+          </p>
+          {impact_html}
+          <h4 class="sr-only">Sources</h4>
+          <ul class="sources">
+            {sources_html}
+          </ul>
+        </article>
+      </li>""".format(
+        categorie_key=html.escape(categorie_key, quote=True),
+        kicker=rendre_kicker(categorie_key, niveau_fiabilite),
+        titre=titre,
+        resume=resume,
+        date_pub=date_pub,
+        date_det_iso=date_det_iso,
+        date_det=date_det,
+        impact_html=impact_html,
+        sources_html=sources_html,
+    )
+
+
+def rendre_options_categories(items):
+    presentes = sorted({item.get("categorie", "") for item in items if item.get("categorie")})
+    options = ['<option value="toutes">Toutes les catégories</option>']
+    for cle in presentes:
+        label = CATEGORIES.get(cle, {"label": cle})["label"]
+        options.append('<option value="{cle}">{label}</option>'.format(
+            cle=html.escape(cle, quote=True), label=html.escape(label)
+        ))
+    return "\n            ".join(options)
+
+
+def date_derniere_maj(items):
+    dates = [item.get("date_detection") for item in items if item.get("date_detection")]
+    if dates:
+        return max(dates)
+    return datetime.now().strftime("%Y-%m-%d")
+
+
+def generer_html():
+    items = charger_items()
+    cartes_html = "\n".join(rendre_carte(item) for item in items) if items else ""
+    options_html = rendre_options_categories(items)
+    maj_iso = date_derniere_maj(items)
+    maj_fr = date_fr(maj_iso)
+    generation_fr = date_fr(datetime.now().strftime("%Y-%m-%d"))
+
+    return HTML_TEMPLATE.format(
+        maj_iso=html.escape(maj_iso),
+        maj_fr=html.escape(maj_fr),
+        generation_fr=html.escape(generation_fr),
+        nb_items=len(items),
+        pluriel="s" if len(items) != 1 else "",
+        options_html=options_html,
+        cartes_html=cartes_html,
+    )
+
+
+HTML_TEMPLATE = """<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CD39 - Actualité juridique</title>
+<meta name="description" content="Veille juridique, marchés publics et assurances pour les agents de la fonction publique territoriale.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,650&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {{
+    --paper: #eef0f7;
+    --paper-raised: #ffffff;
+    --ink: #171a2e;
+    --ink-soft: #52576e;
+    --rule: #d3d7e4;
+    --brand: #000091;
+    --brand-strong: #00006b;
+    --focus: #000091;
+
+    --header-bg: #000091;
+    --header-ink: #ffffff;
+    --header-sub: #d6d9ff;
+    --header-maj: #c7cbff;
+
+    --cat-juridique: #000091;
+    --cat-marches: #00695c;
+    --cat-assurances: #6e3aa3;
+    --cat-rh: #7a4b12;
+    --cat-europe: #10467a;
+    --cat-defaut: #4b5563;
+
+    --impact-faible: #52576e;
+    --impact-moyen: #8a6d00;
+    --impact-fort: #a3123a;
+
+    --warn-bg: #fcefdd;
+    --warn-border: #b5651d;
+    --warn-ink: #5c3210;
+
+    --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-corps: "Public Sans", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }}
+
+  @media (prefers-color-scheme: dark) {{
+    :root:not([data-theme="light"]) {{
+      --paper: #14151f;
+      --paper-raised: #1b1d2b;
+      --ink: #e7e8f2;
+      --ink-soft: #a7acc4;
+      --rule: #333649;
+      --brand: #8c9eff;
+      --brand-strong: #b9c4ff;
+      --focus: #8c9eff;
+
+      --header-bg: #1b2340;
+      --header-ink: #f1f2ff;
+      --header-sub: #a9b3e8;
+      --header-maj: #8791c9;
+
+      --cat-juridique: #8c9eff;
+      --cat-marches: #4fd1c0;
+      --cat-assurances: #c79bff;
+      --cat-rh: #e0a96d;
+      --cat-europe: #7fb0e0;
+      --cat-defaut: #a7acc4;
+
+      --impact-faible: #a7acc4;
+      --impact-moyen: #e0b84d;
+      --impact-fort: #ff6b87;
+
+      --warn-bg: #2a2013;
+      --warn-border: #b5651d;
+      --warn-ink: #f0c89a;
+    }}
+  }}
+
+  :root[data-theme="dark"] {{
+    --paper: #14151f;
+    --paper-raised: #1b1d2b;
+    --ink: #e7e8f2;
+    --ink-soft: #a7acc4;
+    --rule: #333649;
+    --brand: #8c9eff;
+    --brand-strong: #b9c4ff;
+    --focus: #8c9eff;
+
+    --header-bg: #1b2340;
+    --header-ink: #f1f2ff;
+    --header-sub: #a9b3e8;
+    --header-maj: #8791c9;
+
+    --cat-juridique: #8c9eff;
+    --cat-marches: #4fd1c0;
+    --cat-assurances: #c79bff;
+    --cat-rh: #e0a96d;
+    --cat-europe: #7fb0e0;
+    --cat-defaut: #a7acc4;
+
+    --impact-faible: #a7acc4;
+    --impact-moyen: #e0b84d;
+    --impact-fort: #ff6b87;
+
+    --warn-bg: #2a2013;
+    --warn-border: #b5651d;
+    --warn-ink: #f0c89a;
+  }}
+
+  * {{ box-sizing: border-box; }}
+
+  html {{ font-size: 100%; }}
+
+  body {{
+    margin: 0;
+    font-family: var(--font-corps);
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+  }}
+
+  @media (prefers-reduced-motion: no-preference) {{
+    a, input, select {{ transition: border-color 0.15s ease, color 0.15s ease; }}
+  }}
+
+  .sr-only {{
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }}
+
+  a.skip-link {{
+    position: absolute;
+    left: -999px;
+    top: 0;
+    background: var(--header-bg);
+    color: var(--header-ink);
+    padding: 0.75rem 1.1rem;
+    z-index: 100;
+    font-family: var(--font-corps);
+    font-weight: 600;
+  }}
+  a.skip-link:focus {{
+    left: 0;
+  }}
+
+  a, button, input, select {{
+    font: inherit;
+  }}
+
+  :focus-visible {{
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }}
+
+  header[role="banner"] {{
+    background: var(--header-bg);
+    color: var(--header-ink);
+    padding: 2rem 1.25rem 1.75rem;
+  }}
+  header[role="banner"] .conteneur {{
+    max-width: 46rem;
+    margin: 0 auto;
+  }}
+  header[role="banner"] h1 {{
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 650;
+    font-size: clamp(1.9rem, 1.6rem + 1.2vw, 2.6rem);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }}
+  header[role="banner"] .souscription {{
+    margin: 0.4rem 0 0;
+    font-size: 1rem;
+    color: var(--header-sub);
+  }}
+  header[role="banner"] .maj {{
+    margin: 1.1rem 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    color: var(--header-maj);
+    font-variant-numeric: tabular-nums;
+  }}
+
+  .avertissement {{
+    border-bottom: 1px solid var(--rule);
+    background: var(--warn-bg);
+  }}
+  .avertissement .conteneur {{
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    gap: 0.6rem;
+    align-items: baseline;
+    color: var(--warn-ink);
+    font-size: 0.92rem;
+  }}
+  .avertissement strong {{
+    color: var(--warn-ink);
+  }}
+
+  nav[aria-label="Filtres de la veille"] {{
+    background: var(--paper-raised);
+    border-bottom: 1px solid var(--rule);
+  }}
+  nav[aria-label="Filtres de la veille"] .conteneur {{
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 1.1rem 1.25rem;
+  }}
+  .filtres-formulaire {{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+  }}
+  .champ-filtre {{
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1 1 220px;
+  }}
+  .champ-filtre label {{
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }}
+  .champ-filtre input,
+  .champ-filtre select {{
+    padding: 0.55rem 0.65rem;
+    border: 1.5px solid var(--rule);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+  }}
+  .champ-filtre input:hover,
+  .champ-filtre select:hover {{
+    border-color: var(--ink-soft);
+  }}
+
+  main {{
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 1.75rem 1.25rem 3rem;
+  }}
+  main > h2 {{
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 0.25rem;
+  }}
+  main > h2 span {{
+    font-variant-numeric: tabular-nums;
+  }}
+
+  ul.flux {{
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+  }}
+
+  .entree {{
+    border-top: 1px solid var(--rule);
+    padding: 1.5rem 0;
+  }}
+  .entree:first-child {{
+    border-top: none;
+    padding-top: 0.75rem;
+  }}
+
+  .kicker {{
+    margin: 0 0 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }}
+  .kicker-cat {{ font-weight: 500; }}
+  .kicker-sep {{ color: var(--rule); }}
+  .kicker-fiab {{ color: var(--ink-soft); text-transform: none; letter-spacing: 0; }}
+
+  .cat-juridique {{ color: var(--cat-juridique); }}
+  .cat-marches {{ color: var(--cat-marches); }}
+  .cat-assurances {{ color: var(--cat-assurances); }}
+  .cat-rh {{ color: var(--cat-rh); }}
+  .cat-europe {{ color: var(--cat-europe); }}
+  .cat-defaut {{ color: var(--cat-defaut); }}
+
+  .entree h3 {{
+    margin: 0 0 0.55rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.35rem;
+    line-height: 1.3;
+    text-wrap: balance;
+  }}
+
+  .entree .resume {{
+    margin: 0 0 0.9rem;
+    max-width: 42rem;
+  }}
+
+  .entree .meta {{
+    margin: 0 0 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }}
+
+  .impact {{ font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em; }}
+  .impact-faible {{ color: var(--impact-faible); }}
+  .impact-moyen {{ color: var(--impact-moyen); }}
+  .impact-fort {{ color: var(--impact-fort); }}
+
+  ul.sources {{
+    list-style: none;
+    margin: 0.7rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }}
+  ul.sources a {{
+    color: var(--brand);
+    text-decoration: underline;
+    text-decoration-color: var(--rule);
+    text-underline-offset: 3px;
+    word-break: break-word;
+    font-size: 0.95rem;
+  }}
+  ul.sources a:hover {{
+    color: var(--brand-strong);
+    text-decoration-color: currentColor;
+  }}
+  .lien-icone {{
+    margin-left: 0.15rem;
+  }}
+
+  #aucun-resultat {{
+    margin-top: 1.5rem;
+    padding: 1.1rem;
+    background: var(--paper-raised);
+    border: 1px dashed var(--rule);
+    color: var(--ink-soft);
+  }}
+
+  footer[role="contentinfo"] {{
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 3rem;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    border-top: 1px solid var(--rule);
+  }}
+  footer[role="contentinfo"] code {{
+    font-family: var(--font-mono);
+  }}
+
+  @media (max-width: 480px) {{
+    header[role="banner"] {{ padding: 1.5rem 1rem; }}
+    .filtres-formulaire {{ flex-direction: column; align-items: stretch; }}
+  }}
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#contenu">Aller au contenu principal</a>
+
+  <header role="banner">
+    <div class="conteneur">
+      <h1>CD39 - Actualité juridique</h1>
+      <p class="souscription">Juridique &middot; marchés publics &middot; assurances, pour les agents de la fonction publique territoriale</p>
+      <p class="maj">Dernière mise à jour <time datetime="{maj_iso}">{maj_fr}</time></p>
+    </div>
+  </header>
+
+  <div class="avertissement" role="note">
+    <div class="conteneur">
+      <span aria-hidden="true" focusable="false">&#9888;&#65039;</span>
+      <span><strong>Avertissement :</strong> les résumés proposés sur cette page sont fournis à titre
+      d'information pour faciliter la veille des agents de la fonction publique territoriale.
+      Ils ne constituent en aucun cas un avis juridique. Se référer systématiquement aux textes
+      sources cités avant toute décision ou action.</span>
+    </div>
+  </div>
+
+  <nav aria-label="Filtres de la veille">
+    <div class="conteneur">
+      <h2 class="sr-only">Rechercher et filtrer les publications</h2>
+      <form class="filtres-formulaire" role="search" onsubmit="return false;">
+        <div class="champ-filtre">
+          <label for="recherche">Rechercher un mot-clé</label>
+          <input type="search" id="recherche" name="recherche" autocomplete="off"
+                 placeholder="Ex. marchés publics, assurance, décret...">
+        </div>
+        <div class="champ-filtre">
+          <label for="categorie">Filtrer par catégorie</label>
+          <select id="categorie" name="categorie">
+            {options_html}
+          </select>
+        </div>
+      </form>
+    </div>
+  </nav>
+
+  <main id="contenu">
+    <h2>Publications <span id="compteur" aria-live="polite">({nb_items} résultat{pluriel})</span></h2>
+
+    <ul class="flux" id="liste-items">{cartes_html}
+    </ul>
+
+    <p id="aucun-resultat" hidden>Aucune publication ne correspond à votre recherche.</p>
+  </main>
+
+  <footer role="contentinfo">
+    <p>Généré le {generation_fr} par <code>scripts/generate_site.py</code>
+      (projet veille-fpt) à partir de <code>data/veille.json</code>.</p>
+  </footer>
+
+  <script>
+    (function () {{
+      var champRecherche = document.getElementById('recherche');
+      var selectCategorie = document.getElementById('categorie');
+      var compteur = document.getElementById('compteur');
+      var aucunResultat = document.getElementById('aucun-resultat');
+      var elementsListe = Array.prototype.slice.call(
+        document.querySelectorAll('#liste-items > li')
+      );
+
+      function normaliser(texte) {{
+        return texte
+          .normalize('NFD')
+          .replace(/[\\u0300-\\u036f]/g, '')
+          .toLowerCase();
+      }}
+
+      function appliquerFiltres() {{
+        var requete = normaliser(champRecherche.value.trim());
+        var categorieChoisie = selectCategorie.value;
+        var nbVisibles = 0;
+
+        elementsListe.forEach(function (element) {{
+          var article = element.querySelector('article');
+          var categorieArticle = element.getAttribute('data-categorie');
+          var texteArticle = normaliser(article.textContent);
+
+          var correspondCategorie = (categorieChoisie === 'toutes' || categorieArticle === categorieChoisie);
+          var correspondRecherche = (requete === '' || texteArticle.indexOf(requete) !== -1);
+          var visible = correspondCategorie && correspondRecherche;
+
+          element.hidden = !visible;
+          if (visible) {{ nbVisibles += 1; }}
+        }});
+
+        compteur.textContent = '(' + nbVisibles + ' résultat' + (nbVisibles !== 1 ? 's' : '') + ')';
+        aucunResultat.hidden = nbVisibles !== 0;
+      }}
+
+      champRecherche.addEventListener('input', appliquerFiltres);
+      selectCategorie.addEventListener('change', appliquerFiltres);
+      appliquerFiltres();
+    }})();
+  </script>
+</body>
+</html>
+"""
+
+
+def main():
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    items = charger_items()
+    contenu = generer_html()
+    OUTPUT_FILE.write_text(contenu, encoding="utf-8")
+    print("Site généré : {0} ({1} item(s))".format(OUTPUT_FILE, len(items)))
+
+
+if __name__ == "__main__":
+    main()
